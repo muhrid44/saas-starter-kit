@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../SaasStarterKit.Application/SaasStarterKit.Application.csproj" />
+  <Project Path="../SaasStarterKit.Domain/SaasStarterKit.Domain.csproj" />
+  <Project Path="../SaasStarterKit.Infrastructure/SaasStarterKit.Infrastructure.csproj" />
+  <Project Path="SaasStarterKit.API.csproj" />
+</Solution>
