@@ -1,6 +1,8 @@
 
 using MediatR;
 using SaasStarterKit.Application.Users.Commands.CreateUser;
+using Microsoft.EntityFrameworkCore;
+using SaasStarterKit.Infrastructure;
 
 namespace SaasStarterKit
 {
@@ -15,6 +17,9 @@ namespace SaasStarterKit
             builder.Services.AddMediatR(cfg =>
                 cfg.RegisterServicesFromAssembly(
                     typeof(CreateUserHandler).Assembly));
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("NpgSqlConnection")));
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

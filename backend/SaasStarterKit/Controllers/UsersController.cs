@@ -21,7 +21,7 @@ namespace SaasStarterKit.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel user)
         {
             var newUserId = await _mediator.Send(user);
             return Ok(newUserId);
