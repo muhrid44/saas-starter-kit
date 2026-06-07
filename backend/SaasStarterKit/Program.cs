@@ -8,6 +8,7 @@ using SaasStarterKit.Application.Common.Settings;
 using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Domain.Entities;
 using SaasStarterKit.Infrastructure;
+using SaasStarterKit.Infrastructure.Repositories;
 
 namespace SaasStarterKit
 {
@@ -18,6 +19,7 @@ namespace SaasStarterKit
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 

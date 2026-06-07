@@ -5,6 +5,7 @@ using SaasStarterKit.Application.Common.Settings;
 using SaasStarterKit.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SaasStarterKit.Application.Common.Services
@@ -41,6 +42,26 @@ namespace SaasStarterKit.Application.Common.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public RefreshToken GenerateRefreshToken(Guid userId)
+        {
+            return new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                CreatedAt = DateTime.UtcNow,
+                IsRevoked = false,
+                UserId = userId
+            };
+        }
+
+        public Guid? ValidateRefreshToken(string token)
+        {
+            // validation will happen in the handler via DB lookup
+            // this method is a placeholder for token format validation if needed
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SaasStarterKit.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SaasStarterKit.Infrastructure
 {
@@ -13,6 +10,8 @@ namespace SaasStarterKit.Infrastructure
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +23,17 @@ namespace SaasStarterKit.Infrastructure
                 entity.Property(e => e.FullName)
                     .IsRequired()
                     .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Token).IsRequired();
+                entity.HasIndex(r => r.Token).IsUnique();
+                entity.HasOne(r => r.User)
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
