@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SaasStarterKit.Domain;
+using SaasStarterKit.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;

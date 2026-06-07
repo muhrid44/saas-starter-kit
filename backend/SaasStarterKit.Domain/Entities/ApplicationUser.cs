@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace SaasStarterKit.Domain
+namespace SaasStarterKit.Domain.Entities
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
