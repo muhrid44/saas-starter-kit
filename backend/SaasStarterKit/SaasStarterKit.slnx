@@ -2,5 +2,6 @@
   <Project Path="../SaasStarterKit.Application/SaasStarterKit.Application.csproj" />
   <Project Path="../SaasStarterKit.Domain/SaasStarterKit.Domain.csproj" />
   <Project Path="../SaasStarterKit.Infrastructure/SaasStarterKit.Infrastructure.csproj" />
+  <Project Path="../SaasStarterKit.Tests/SaasStarterKit.Tests.csproj" Id="8d2990e2-d2f3-4200-aeba-e8fea99a059e" />
   <Project Path="SaasStarterKit.API.csproj" />
 </Solution>
