@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SaasStarterKit.Application.Users.Commands.Login;
+using SaasStarterKit.Application.Users.Commands.RefreshToken;
 
 namespace SaasStarterKit.API.Controllers
 {
@@ -16,17 +17,24 @@ namespace SaasStarterKit.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
+        public async Task<IActionResult> Login([FromBody] LoginUserCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var token = await _mediator.Send(command);
+                var token = await _mediator.Send(command, cancellationToken);
                 return Ok(new { Token = token });
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new { ex.Message });
             }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
         }
     }
 }
