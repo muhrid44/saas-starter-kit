@@ -74,6 +74,7 @@ namespace SaasStarterKit
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
                 var testUser = await userManager.FindByEmailAsync("test@test.com");
+                var defaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
 
                 if (testUser == null)
                 {
@@ -83,17 +84,16 @@ namespace SaasStarterKit
                         Email = "test@test.com",
                         FullName = "Test User",
                         IsActive = true,
-                        CreateAt = DateTime.UtcNow
+                        CreateAt = DateTime.UtcNow,
+                        TenantId = defaultTenantId
                     };
 
-                    var result = await userManager.CreateAsync(newUser, "!Password1");
+                    var result = await userManager.CreateAsync(newUser, "Test@123456!");
 
                     if (!result.Succeeded)
                     {
                         foreach (var error in result.Errors)
-                        {
                             Console.WriteLine($"Seed error: {error.Code} - {error.Description}");
-                        }
                     }
                 }
             }
