@@ -1,14 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SaasStarterKit.Application.Common.Interfaces;
+using SaasStarterKit.Domain.Common;
 using SaasStarterKit.Domain.Entities;
 
 namespace SaasStarterKit.Infrastructure
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        private readonly ITenantService _tenantService;
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options)
         {
+            _tenantService = tenantService;
         }
 
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
@@ -18,6 +22,21 @@ namespace SaasStarterKit.Infrastructure
         {
             // This is required for setup the Identity framework
             base.OnModelCreating(modelBuilder);
+
+            // Auto-apply tenant filter to all ITenantEntity
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(ITenantEntity).IsAssignableFrom(entityType.ClrType)
+                    && entityType.ClrType != typeof(ApplicationUser))
+                {
+                    var method = typeof(ApplicationDbContext)
+                        .GetMethod(nameof(ApplyTenantFilter),
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                        .MakeGenericMethod(entityType.ClrType);
+
+                    method.Invoke(this, new object[] { modelBuilder });
+                }
+            }
 
             modelBuilder.Entity<Tenant>(entity =>
             {
@@ -47,6 +66,13 @@ namespace SaasStarterKit.Infrastructure
                     .HasForeignKey(r => r.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+        }
+
+        private void ApplyTenantFilter<TEntity>(ModelBuilder modelBuilder)
+       where TEntity : class, ITenantEntity
+        {
+            modelBuilder.Entity<TEntity>()
+                .HasQueryFilter(e => e.TenantId == _tenantService.GetCurrentTenantId());
         }
     }
 }

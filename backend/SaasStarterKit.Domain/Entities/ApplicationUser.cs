@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SaasStarterKit.Domain.Common;
 
 namespace SaasStarterKit.Domain.Entities
 {
-    public class ApplicationUser : IdentityUser<Guid>
+    public class ApplicationUser : IdentityUser<Guid>, ITenantEntity
     {
         public required string FullName  { get; set; }
         public bool IsActive { get; set; }

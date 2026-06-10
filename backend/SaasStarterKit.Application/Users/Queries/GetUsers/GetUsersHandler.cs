@@ -1,9 +1,10 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SaasStarterKit.Application.Common.Interfaces;
+using SaasStarterKit.Domain.Entities;
 
-public record UserDto(Guid Id, string Email, string FullName);
+public record UserDto(Guid Id, string Email, string FullName, bool IsActive);
 
 public record UsersDto : IRequest<List<UserDto>>;
 
@@ -11,16 +12,24 @@ namespace SaasStarterKit.Application.Users.Queries.GetUsers
 {
     public class GetUsersHandler : IRequestHandler<UsersDto, List<UserDto>>
     {
-        public Task<List<UserDto>> Handle(UsersDto request, CancellationToken cancellationToken)
-        {
-            // Dummy data for now — will connect to DB later on
-            var users = new List<UserDto>
-        {
-            new(Guid.NewGuid(), "admin@test.com", "Admin User"),
-            new(Guid.NewGuid(), "user@test.com", "Regular User"),
-        };
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITenantService _tenantService;
 
-            return Task.FromResult(users);
+        public GetUsersHandler(UserManager<ApplicationUser> userManager, ITenantService tenantService)
+        {
+            _userManager = userManager;
+            _tenantService = tenantService;
+        }
+        public async Task<List<UserDto>> Handle(UsersDto request, CancellationToken cancellationToken)
+        {
+            var currentTenantId = _tenantService.GetCurrentTenantId();
+
+            var users = await _userManager.Users
+                        .Where(u => u.TenantId == currentTenantId)
+                        .Select(u => new UserDto(u.Id, u.Email, u.FullName, u.IsActive))
+                        .ToListAsync(cancellationToken);
+
+            return users;
         }
     }
 }

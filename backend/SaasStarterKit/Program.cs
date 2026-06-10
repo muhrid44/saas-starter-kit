@@ -26,10 +26,14 @@ namespace SaasStarterKit
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = "JwtBearerDefaults.AuthenticationScheme";
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).
             AddJwtBearer(options =>
             {
@@ -45,10 +49,6 @@ namespace SaasStarterKit
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
 
             // Add services to the container.
             // Add MediatR
@@ -74,8 +74,10 @@ namespace SaasStarterKit
                 //Seed test user
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-                var testUser = await userManager.FindByEmailAsync("test@test.com");
-                var defaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
+                // bypass tenant filter for seeding
+                var testUser = await db.Users
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(u => u.Email == "test@test.com"); var defaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
 
                 if (testUser == null)
                 {
@@ -106,6 +108,8 @@ namespace SaasStarterKit
             }
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
