@@ -30,7 +30,8 @@ namespace SaasStarterKit.Application.Common.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.FullName)
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim("TenantId", user.TenantId.ToString())
             };
 
             var token = new JwtSecurityToken(

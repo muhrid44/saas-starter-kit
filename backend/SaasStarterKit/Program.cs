@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SaasStarterKit.API.Middleware;
+using SaasStarterKit.API.Utils;
 using SaasStarterKit.Application.Common.Interfaces;
 using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Application.Common.Settings;
@@ -18,8 +20,7 @@ namespace SaasStarterKit
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IJwtService, JwtService>();
-            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            ServicesRegistration.Register(builder);
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
@@ -108,6 +109,7 @@ namespace SaasStarterKit
 
             app.UseAuthorization();
 
+            app.UseMiddleware<TenantMiddleware>();
 
             app.MapControllers();
 
