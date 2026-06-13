@@ -22,6 +22,8 @@ namespace SaasStarterKit
 
             ServicesRegistration.Register(builder);
 
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
