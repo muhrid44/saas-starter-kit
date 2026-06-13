@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Asp.Versioning;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SaasStarterKit.Application.Users.Queries.GetUsers;
@@ -7,7 +8,7 @@ namespace SaasStarterKit.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;

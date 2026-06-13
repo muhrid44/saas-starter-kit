@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using Asp.Versioning;
+using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SaasStarterKit.Application.Common.Jobs;
@@ -9,7 +10,7 @@ using SaasStarterKit.Application.Users.Commands.RefreshToken;
 namespace SaasStarterKit.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -33,29 +34,15 @@ namespace SaasStarterKit.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserCommand command, CancellationToken cancellationToken)
         {
-            try
-            {
-                var token = await _mediator.Send(command, cancellationToken);
-                return Ok(new { Token = token });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { ex.Message });
-            }
+            var token = await _mediator.Send(command, cancellationToken);
+            return Ok(new { Token = token });
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _mediator.Send(command, cancellationToken);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { ex.Message });
-            }
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
         }
     }
 }

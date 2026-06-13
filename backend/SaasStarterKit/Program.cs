@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,6 +26,8 @@ namespace SaasStarterKit
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
             builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
@@ -80,6 +83,22 @@ namespace SaasStarterKit
                 options.InstanceName = "SaasStarterKit:";
             });
 
+            builder.Services.Configure<ApiSettings>(
+                builder.Configuration.GetSection("ApiSettings"));
+
+            var apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+            var versionParts = apiSettings.DefaultVersion.Split('.');
+            var majorVersion = int.Parse(versionParts[0]);
+            var minorVersion = versionParts.Length > 1 ? int.Parse(versionParts[1]) : 0;
+
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(majorVersion, minorVersion);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+            }).AddMvc();
+
             var app = builder.Build();
 
             //Automatically apply pending migrations on application startup
@@ -124,12 +143,10 @@ namespace SaasStarterKit
                 app.MapOpenApi();
             }
 
+            app.UseExceptionHandler();
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
-
             app.UseAuthorization();
-
             app.UseMiddleware<TenantMiddleware>();
 
             // Add Hangfire dashboard
