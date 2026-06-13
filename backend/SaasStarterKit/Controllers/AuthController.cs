@@ -22,12 +22,12 @@ namespace SaasStarterKit.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
         {
-            var token = await _mediator.Send(command, cancellationToken);
+            var userId = await _mediator.Send(command, cancellationToken);
 
             // fire and forget welcome email
             BackgroundJob.Enqueue<EmailJob>(job => job.SendWelcomeEmail(command.Email));
 
-            return Ok(new { Token = token });
+            return Ok(new { UserId = userId });
         }
 
         [HttpPost("login")]
