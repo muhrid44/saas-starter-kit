@@ -6,13 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SaasStarterKit.API.Middleware;
 using SaasStarterKit.API.Utils;
-using SaasStarterKit.Application.Common.Interfaces;
-using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Application.Common.Settings;
 using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Domain.Entities;
 using SaasStarterKit.Infrastructure;
-using SaasStarterKit.Infrastructure.Repositories;
 
 namespace SaasStarterKit
 {
@@ -27,6 +24,7 @@ namespace SaasStarterKit
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+            builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
@@ -74,6 +72,13 @@ namespace SaasStarterKit
                         builder.Configuration.GetConnectionString("NpgSqlConnection"))));
 
             builder.Services.AddHangfireServer();
+
+            // Add Redis caching
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.InstanceName = "SaasStarterKit:";
+            });
 
             var app = builder.Build();
 

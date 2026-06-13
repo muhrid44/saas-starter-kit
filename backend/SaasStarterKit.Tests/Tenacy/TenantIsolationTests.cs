@@ -13,6 +13,7 @@ namespace SaasStarterKit.Tests.Tenacy
     {
         private Mock<UserManager<ApplicationUser>> _userManagerMock;
         private Mock<ITenantService> _tenantServiceMock;
+        private Mock<ICacheService> _cacheServiceMock;
         private GetUsersHandler _handler;
 
         [SetUp]
@@ -24,9 +25,12 @@ namespace SaasStarterKit.Tests.Tenacy
 
             _tenantServiceMock = new Mock<ITenantService>();
 
+            _cacheServiceMock = new Mock<ICacheService>();
+
             _handler = new GetUsersHandler(
                 _userManagerMock.Object,
-                _tenantServiceMock.Object);
+                _tenantServiceMock.Object,
+                _cacheServiceMock.Object);
         }
 
         [Test]

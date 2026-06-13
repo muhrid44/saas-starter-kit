@@ -2,6 +2,7 @@
 using SaasStarterKit.Application.Common.Jobs;
 using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Infrastructure.Repositories;
+using SaasStarterKit.Infrastructure.Services;
 
 namespace SaasStarterKit.API.Utils
 {
@@ -14,6 +15,7 @@ namespace SaasStarterKit.API.Utils
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ITenantService, TenantService>();
             builder.Services.AddScoped<EmailJob>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
         }
     }
 }
