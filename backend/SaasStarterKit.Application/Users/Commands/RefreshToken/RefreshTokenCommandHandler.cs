@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using SaasStarterKit.Application.Common.Interfaces;
 using SaasStarterKit.Application.Users.Commands.Login;
 using SaasStarterKit.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SaasStarterKit.Application.Users.Commands.RefreshToken
 {

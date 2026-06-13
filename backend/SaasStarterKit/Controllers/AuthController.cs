@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using Hangfire;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SaasStarterKit.Application.Common.Jobs;
+using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Application.Users.Commands.Login;
 using SaasStarterKit.Application.Users.Commands.RefreshToken;
 
@@ -14,6 +17,17 @@ namespace SaasStarterKit.API.Controllers
         public AuthController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+        {
+            var token = await _mediator.Send(command, cancellationToken);
+
+            // fire and forget welcome email
+            BackgroundJob.Enqueue<EmailJob>(job => job.SendWelcomeEmail(command.Email));
+
+            return Ok(new { Token = token });
         }
 
         [HttpPost("login")]

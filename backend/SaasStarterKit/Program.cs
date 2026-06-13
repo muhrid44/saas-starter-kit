@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +58,7 @@ namespace SaasStarterKit
             // Add MediatR
             builder.Services.AddMediatR(cfg =>
                 cfg.RegisterServicesFromAssembly(
-                    typeof(CreateUserHandler).Assembly));
+                    typeof(RegisterUserCommandHandler).Assembly));
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("NpgSqlConnection")));
@@ -64,6 +66,14 @@ namespace SaasStarterKit
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            // Add Hangfire
+            builder.Services.AddHangfire(config =>
+                config.UsePostgreSqlStorage(options =>
+                    options.UseNpgsqlConnection(
+                        builder.Configuration.GetConnectionString("NpgSqlConnection"))));
+
+            builder.Services.AddHangfireServer();
 
             var app = builder.Build();
 
@@ -116,6 +126,9 @@ namespace SaasStarterKit
             app.UseAuthorization();
 
             app.UseMiddleware<TenantMiddleware>();
+
+            // Add Hangfire dashboard
+            app.UseHangfireDashboard("/hangfire");
 
             app.MapControllers();
 

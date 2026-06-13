@@ -21,12 +21,5 @@ namespace SaasStarterKit.API.Controllers
             var users = await _mediator.Send(new UsersDto());
             return Ok(users);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel user, CancellationToken cancellationToken)
-        {
-            var newUserId = await _mediator.Send(user, cancellationToken);
-            return Ok(newUserId);
-        }
     }
 }

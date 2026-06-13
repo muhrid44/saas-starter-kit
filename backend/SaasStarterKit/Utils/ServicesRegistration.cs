@@ -1,4 +1,5 @@
 ﻿using SaasStarterKit.Application.Common.Interfaces;
+using SaasStarterKit.Application.Common.Jobs;
 using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Infrastructure.Repositories;
 
@@ -12,6 +13,7 @@ namespace SaasStarterKit.API.Utils
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ITenantService, TenantService>();
+            builder.Services.AddScoped<EmailJob>();
         }
     }
 }
