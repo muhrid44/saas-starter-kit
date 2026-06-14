@@ -23,6 +23,11 @@ namespace SaasStarterKit
             var builder = WebApplication.CreateBuilder(args);
 
             ServicesRegistration.Register(builder);
+            var apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+            var versionParts = apiSettings.DefaultVersion.Split('.');
+            var majorVersion = int.Parse(versionParts[0]);
+            var minorVersion = versionParts.Length > 1 ? int.Parse(versionParts[1]) : 0;
+
 
             builder.Services.AddHttpContextAccessor();
 
@@ -76,7 +81,7 @@ namespace SaasStarterKit
                     document.Info = new()
                     {
                         Title = "SaaS Starter Kit API",
-                        Version = "v1",
+                        Version = $"v{majorVersion}.{minorVersion}",
                         Description = "Production-ready multi-tenant SaaS starter kit"
                     };
 
@@ -100,11 +105,6 @@ namespace SaasStarterKit
 
             builder.Services.Configure<ApiSettings>(
                 builder.Configuration.GetSection("ApiSettings"));
-
-            var apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
-            var versionParts = apiSettings.DefaultVersion.Split('.');
-            var majorVersion = int.Parse(versionParts[0]);
-            var minorVersion = versionParts.Length > 1 ? int.Parse(versionParts[1]) : 0;
 
             builder.Services.AddApiVersioning(options =>
             {
