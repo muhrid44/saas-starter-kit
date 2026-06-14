@@ -11,6 +11,8 @@ using SaasStarterKit.Application.Common.Settings;
 using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Domain.Entities;
 using SaasStarterKit.Infrastructure;
+using Scalar.AspNetCore;
+using System.Text.Json.Nodes;
 
 namespace SaasStarterKit
 {
@@ -66,8 +68,21 @@ namespace SaasStarterKit
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
 
+            builder.Services.AddOpenApi(options =>
+            {
+                options.AddDocumentTransformer((document, context, ct) =>
+                {
+                    document.Info = new()
+                    {
+                        Title = "SaaS Starter Kit API",
+                        Version = "v1",
+                        Description = "Production-ready multi-tenant SaaS starter kit"
+                    };
+
+                    return Task.CompletedTask;
+                });
+            });
             // Add Hangfire
             builder.Services.AddHangfire(config =>
                 config.UsePostgreSqlStorage(options =>
@@ -141,6 +156,13 @@ namespace SaasStarterKit
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference(options =>
+                {
+                    options.Title = "SaaS Starter Kit API";
+                    options.Theme = ScalarTheme.DeepSpace;
+                    options.DefaultHttpClient = new(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                    options.AddPreferredSecuritySchemes("Bearer");
+                });
             }
 
             app.UseExceptionHandler();
