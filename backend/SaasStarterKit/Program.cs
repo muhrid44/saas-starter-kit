@@ -3,6 +3,7 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SaasStarterKit.API.Middleware;
@@ -13,6 +14,7 @@ using SaasStarterKit.Domain.Entities;
 using SaasStarterKit.Infrastructure;
 using Scalar.AspNetCore;
 using System.Text.Json.Nodes;
+using System.Threading.RateLimiting;
 
 namespace SaasStarterKit
 {
@@ -114,6 +116,29 @@ namespace SaasStarterKit
                 options.ApiVersionReader = new UrlSegmentApiVersionReader();
             }).AddMvc();
 
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                // General API rate limit
+                options.AddFixedWindowLimiter("general", opt =>
+                {
+                    opt.PermitLimit = 100;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    opt.QueueLimit = 0;
+                });
+
+                // Strict limit for auth endpoints
+                options.AddFixedWindowLimiter("auth", opt =>
+                {
+                    opt.PermitLimit = 5;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    opt.QueueLimit = 0;
+                });
+            });
+
             var app = builder.Build();
 
             //Automatically apply pending migrations on application startup
@@ -167,12 +192,16 @@ namespace SaasStarterKit
 
             app.UseExceptionHandler();
             app.UseHttpsRedirection();
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<TenantMiddleware>();
 
             // Add Hangfire dashboard
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthorizationFilter() }
+            });
 
             app.MapControllers();
 

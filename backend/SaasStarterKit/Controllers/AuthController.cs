@@ -1,7 +1,7 @@
-﻿using Asp.Versioning;
-using Hangfire;
+﻿using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SaasStarterKit.Application.Common.Jobs;
 using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Application.Users.Commands.Login;
@@ -9,6 +9,7 @@ using SaasStarterKit.Application.Users.Commands.RefreshToken;
 
 namespace SaasStarterKit.API.Controllers
 {
+    [EnableRateLimiting("auth")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class AuthController : ControllerBase
