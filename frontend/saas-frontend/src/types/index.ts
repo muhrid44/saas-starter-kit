@@ -29,3 +29,10 @@ export interface AuditLog {
   changedAt: string
   tenantId: string
 }
+
+export interface RegisterRequest {
+  email: string
+  password: string
+  fullName: string
+  tenantSlug: string
+}
