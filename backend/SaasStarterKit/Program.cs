@@ -139,6 +139,17 @@ namespace SaasStarterKit
                 });
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin", policy =>
+                {
+                    var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]!;
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             var app = builder.Build();
 
             //Automatically apply pending migrations on application startup
@@ -190,6 +201,7 @@ namespace SaasStarterKit
                 });
             }
 
+            app.UseCors("AllowOrigin");
             app.UseExceptionHandler();
             app.UseHttpsRedirection();
             app.UseRateLimiter();
