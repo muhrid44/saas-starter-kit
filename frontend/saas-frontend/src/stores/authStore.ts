@@ -17,7 +17,6 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       tokens: null,
-      tenantSlug: null,
 
       setAuth: (user, tokens) => set({ user, tokens }),
 

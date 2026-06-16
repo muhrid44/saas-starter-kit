@@ -5,7 +5,7 @@ export interface User {
   tenantId: string
   isActive: boolean
   roles: string[]
-  createdAt: string
+  createAt: string
 }
 
 export interface AuthTokens {

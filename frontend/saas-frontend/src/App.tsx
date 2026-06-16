@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
+import { UsersPage } from '@/features/users/pages/UsersPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated())
@@ -15,29 +18,18 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route
-          path="/dashboard"
+          path="/"
           element={
             <ProtectedRoute>
-              <div>Dashboard</div>
+              <AppLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/users"
-          element={
-            <ProtectedRoute>
-              <div>Users</div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/audit"
-          element={
-            <ProtectedRoute>
-              <div>Audit Logs</div>
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="audit" element={<div>Audit Logs</div>} />
+        </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
