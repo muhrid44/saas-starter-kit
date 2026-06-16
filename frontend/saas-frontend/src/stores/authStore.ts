@@ -5,9 +5,8 @@ import type { User, AuthTokens } from '@/types'
 interface AuthState {
   user: User | null
   tokens: AuthTokens | null
-  tenantSlug: string | null
 
-  setAuth: (user: User, tokens: AuthTokens, tenantSlug: string) => void
+  setAuth: (user: User, tokens: AuthTokens) => void
   setTokens: (tokens: AuthTokens) => void
   logout: () => void
   isAuthenticated: () => boolean
@@ -20,11 +19,11 @@ export const useAuthStore = create<AuthState>()(
       tokens: null,
       tenantSlug: null,
 
-      setAuth: (user, tokens, tenantSlug) => set({ user, tokens, tenantSlug }),
+      setAuth: (user, tokens) => set({ user, tokens }),
 
       setTokens: (tokens) => set({ tokens }),
 
-      logout: () => set({ user: null, tokens: null, tenantSlug: null }),
+      logout: () => set({ user: null, tokens: null}),
 
       isAuthenticated: () => !!get().tokens?.accessToken,
     }),
