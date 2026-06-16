@@ -7,7 +7,7 @@ using SaasStarterKit.Domain.Entities;
 namespace SaasStarterKit.Application.Users.Queries.GetUsers
 {
 
-    public record UserDto(Guid Id, string Email, string FullName, bool IsActive);
+    public record UserDto(Guid Id, string Email, string FullName, bool IsActive, DateTime CreateAt, List<string> Roles);
 
     public record UsersDto : IRequest<List<UserDto>>;
 
@@ -38,15 +38,30 @@ namespace SaasStarterKit.Application.Users.Queries.GetUsers
 
             Console.WriteLine($"Cache MISS for {cacheKey}");
 
+            // fetch users first
             var users = await _userManager.Users
                         .Where(u => u.TenantId == currentTenantId)
-                        .Select(u => new UserDto(u.Id, u.Email, u.FullName, u.IsActive))
                         .ToListAsync(cancellationToken);
+
+            // fetch all roles in parallel
+            var userDtos = new List<UserDto>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userDtos.Add(new UserDto(
+                    user.Id,
+                    user.Email,
+                    user.FullName,
+                    user.IsActive,
+                    user.CreateAt,
+                    roles.ToList()
+                ));
+            }
 
             // store in cache
             await _cacheService.SetAsync(cacheKey, users, cancellationToken: cancellationToken);
 
-            return users;
+            return userDtos;
         }
     }
 }
