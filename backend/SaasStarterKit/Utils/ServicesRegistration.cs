@@ -12,10 +12,11 @@ namespace SaasStarterKit.API.Utils
         {
             // Register application services
             builder.Services.AddScoped<IJwtService, JwtService>();
-            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ITenantService, TenantService>();
             builder.Services.AddScoped<EmailJob>();
             builder.Services.AddScoped<ICacheService, CacheService>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         }
     }
 }

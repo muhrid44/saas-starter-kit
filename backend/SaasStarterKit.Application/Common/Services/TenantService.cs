@@ -8,6 +8,9 @@ namespace SaasStarterKit.Application.Common.Services
 
         public Guid GetCurrentTenantId() => _currentTenantId;
 
-        public void SetCurrentTenantId(Guid tenantId) => _currentTenantId = tenantId;
+        public void SetCurrentTenantId(Guid tenantId)
+        {
+            _currentTenantId = tenantId;
+        }
     }
 }

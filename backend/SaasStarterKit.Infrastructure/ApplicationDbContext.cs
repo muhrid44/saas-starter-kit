@@ -14,6 +14,24 @@ namespace SaasStarterKit.Infrastructure
     {
         private readonly ITenantService _tenantService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private static readonly HashSet<string> SensitiveProperties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "PasswordHash",
+            "SecurityStamp",
+            "ConcurrencyStamp",
+            "Token",           // RefreshToken
+            "NormalizedEmail",
+            "NormalizedUserName",
+            "PhoneNumber",
+            "TwoFactorEnabled",
+            "LockoutEnd",
+            "LockoutEnabled",
+            "AccessFailedCount",
+            "EmailConfirmed",
+            "PhoneNumberConfirmed"
+        };
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService, IHttpContextAccessor httpContextAccessor) : base(options)
         {
             _tenantService = tenantService;
@@ -51,6 +69,28 @@ namespace SaasStarterKit.Infrastructure
                 if (entry.State == EntityState.Detached ||
                     entry.State == EntityState.Unchanged) continue;
 
+                // enrich changedBy from entity if JWT not available
+                var effectiveChangedBy = changedBy;
+                if (string.IsNullOrEmpty(effectiveChangedBy))
+                {
+                    effectiveChangedBy = entry.Entity switch
+                    {
+                        ApplicationUser u => u.Email,
+                        RefreshToken r => r.User?.Email,
+                        _ => "System"  // ← fallback for any other entity with no HTTP context
+                    };
+                }
+
+                // enrich tenantId from entity if not available  
+                var effectiveTenantId = tenantId == Guid.Empty
+                    ? entry.Entity switch
+                    {
+                        ApplicationUser u => (Guid?)u.TenantId,
+                        RefreshToken r => r.User?.TenantId,
+                        _ => null
+                    }
+                    : (Guid?)tenantId;
+
                 var action = entry.State switch
                 {
                     EntityState.Added => "Created",
@@ -61,11 +101,13 @@ namespace SaasStarterKit.Infrastructure
 
                 var oldValues = entry.State == EntityState.Modified
                     ? JsonSerializer.Serialize(entry.OriginalValues.Properties
+                        .Where(p => !SensitiveProperties.Contains(p.Name))
                         .ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString()))
                     : null;
 
                 var newValues = entry.State != EntityState.Deleted
                     ? JsonSerializer.Serialize(entry.CurrentValues.Properties
+                        .Where(p => !SensitiveProperties.Contains(p.Name))
                         .ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString()))
                     : null;
 
@@ -76,9 +118,9 @@ namespace SaasStarterKit.Infrastructure
                     Action = action,
                     OldValues = oldValues,
                     NewValues = newValues,
-                    ChangedBy = changedBy,
+                    ChangedBy = effectiveChangedBy,
                     ChangedAt = DateTime.UtcNow,
-                    TenantId = tenantId == Guid.Empty ? null : tenantId
+                    TenantId = effectiveTenantId == Guid.Empty ? null : effectiveTenantId
                 });
             }
 
