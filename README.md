@@ -47,6 +47,7 @@ A production-ready, open-source SaaS boilerplate built with **.NET 10** and **Re
 ## Getting Started
 
 ### Prerequisites
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/install/)
 - [Node.js 20+](https://nodejs.org) (for frontend only)
 
