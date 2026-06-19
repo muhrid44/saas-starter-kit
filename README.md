@@ -60,12 +60,19 @@ cd saas-starter-kit
 
 ### 2. Configure the backend
 
-Open `docker-compose.yml` and update the environment variables:
+Open `docker-compose.yml` and update the environment variables (can see the example on `.env.example` file):
 
 ```yaml
-JWT_SECRET_KEY: your-strong-secret-key-minimum-32-characters
-POSTGRES_PASSWORD: your-postgres-password
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+JWT_SECRET_KEY=
+JWT_ISSUER=
+JWT_AUDIENCE=
+JWT_EXPIRY_MINUTES=
 ```
+
+don't forget to setup your Redis connection!
 
 ### 3. Configure the frontend
 
@@ -74,7 +81,7 @@ cd frontend/saas-frontend
 cp .env.example .env.local
 ```
 
-Update `.env.local`:```
+Update `.env.local`:
 
 VITE_BASE_URL=http://localhost:5000
 
