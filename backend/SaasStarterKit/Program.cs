@@ -143,7 +143,8 @@ namespace SaasStarterKit
             {
                 options.AddPolicy("AllowOrigin", policy =>
                 {
-                    var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]!;
+                    var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]!
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries);
                     policy.WithOrigins(allowedOrigins)
                           .AllowAnyHeader()
                           .AllowAnyMethod();

@@ -25,7 +25,7 @@ const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 
     try {
       const { token } = await authApi.signup({ fullName, email, password, tenantName, tenantSlug })
-      setAuth({ email, fullName, id: '', tenantId: '', isActive: true, roles: ['Admin'], CreatedDate: '' }, token)
+      setAuth({ email, fullName, id: '', tenantId: '', isActive: true, roles: ['Admin'], createdDate: '', modifiedDate: '' }, token)
       await queryClient.clear()
       navigate('/dashboard')
     } catch (err: unknown) {
