@@ -38,6 +38,7 @@ export function UsersPage() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['users'] })
     queryClient.invalidateQueries({ queryKey: ['auditlogs'] })
+    queryClient.invalidateQueries({ queryKey: ['dashboardInfo'] })
   }
 
   const closeModal = () => {

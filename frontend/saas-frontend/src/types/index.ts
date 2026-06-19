@@ -52,3 +52,11 @@ export interface DashboardInfo {
   auditLogsEvent: number
   activeUser: number
 }
+
+export interface PaginatedResult<T> {
+  items: T[]
+  totalCount: number
+  page: number
+  pageSize: number
+  totalPages: number
+}

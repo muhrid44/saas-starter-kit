@@ -1,9 +1,9 @@
 import { apiClient } from './client'
-import type { AuditLog } from '@/types'
+import type { AuditLog, PaginatedResult } from '@/types'
 
 export const auditLogsApi = {
-  getAll: async (): Promise<AuditLog[]> => {
-    const res = await apiClient.get('/auditlogs')
+  getAll: async (page = 1, pageSize = 20): Promise<PaginatedResult<AuditLog>> => {
+    const res = await apiClient.get('/auditlogs', { params: { page, pageSize } })
     return res.data
   },
 }

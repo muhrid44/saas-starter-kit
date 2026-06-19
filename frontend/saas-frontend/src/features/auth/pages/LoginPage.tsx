@@ -22,7 +22,7 @@ export function LoginPage() {
 
     try {
       const { token } = await authApi.login({ email, password })      
-      setAuth({ email, fullName: '', id: '', tenantId: '', isActive: true, roles: [], CreatedDate: '' }, token)      
+      setAuth({ email, fullName: '', id: '', tenantId: '', isActive: true, roles: [], createdDate: '', modifiedDate: '' }, token)      
       await queryClient.clear()
       navigate('/dashboard')
     } catch (err: unknown) {
@@ -30,7 +30,8 @@ export function LoginPage() {
         setError(err.response?.data?.detail ?? 'Something went wrong. Please try again.')
       } else {
         setError('Something went wrong. Please try again.')
-      }    } finally {
+      }    
+    } finally {
       setLoading(false)
     }
   }
