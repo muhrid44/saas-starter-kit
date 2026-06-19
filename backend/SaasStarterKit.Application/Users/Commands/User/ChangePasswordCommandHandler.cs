@@ -59,7 +59,6 @@ namespace SaasStarterKit.Application.Users.Commands.User
 
                 if (!result.Succeeded)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
                     throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
                 }
 
