@@ -4,6 +4,8 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { UsersPage } from '@/features/users/pages/UsersPage'
+import { AuditPage } from '@/features/audit/pages/AuditPage'
+import { SignupPage } from './features/auth/pages/SignupPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated())
@@ -16,6 +18,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
         <Route
           path="/"
@@ -28,7 +31,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="users" element={<UsersPage />} />
-          <Route path="audit" element={<div>Audit Logs</div>} />
+          <Route path="audit" element={<AuditPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

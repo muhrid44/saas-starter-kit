@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { authApi } from '@/api/auth'
+import { useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 
 export function LoginPage() {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const setAuth = useAuthStore((s) => s.setAuth)
 
@@ -19,11 +22,15 @@ export function LoginPage() {
 
     try {
       const { token } = await authApi.login({ email, password })      
-      setAuth({ email, fullName: '', id: '', tenantId: '', isActive: true, roles: [], createdAt: '' }, token)      
+      setAuth({ email, fullName: '', id: '', tenantId: '', isActive: true, roles: [], CreatedDate: '' }, token)      
+      await queryClient.clear()
       navigate('/dashboard')
-    } catch {
-      setError('Invalid credentials. Please try again.')
-    } finally {
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.detail ?? 'Something went wrong. Please try again.')
+      } else {
+        setError('Something went wrong. Please try again.')
+      }    } finally {
       setLoading(false)
     }
   }
@@ -66,6 +73,10 @@ export function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <p className="text-sm text-center text-gray-500 mt-4">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-blue-600 hover:underline">Create workspace</Link>
+        </p>
       </div>
     </div>
   )

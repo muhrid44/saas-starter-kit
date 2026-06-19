@@ -2,10 +2,11 @@ export interface User {
   id: string
   email: string
   fullName: string
-  tenantId: string
   isActive: boolean
+  tenantId: string
+  createdDate: string
+  modifiedDate: string
   roles: string[]
-  createAt: string
 }
 
 export interface AuthTokens {
@@ -20,12 +21,10 @@ export interface LoginRequest {
 
 export interface AuditLog {
   id: string
-  entityName: string
-  action: 'Created' | 'Updated' | 'Deleted'
-  oldValues: string | null
-  newValues: string | null
-  changedBy: string
-  changedAt: string
+  eventName: string
+  description: 'Created' | 'Updated' | 'Deleted'
+  changedBy: string | null
+  changedDate: string | null
   tenantId: string
 }
 
@@ -33,5 +32,23 @@ export interface RegisterRequest {
   email: string
   password: string
   fullName: string
+}
+
+export interface SignupRequest {
+  fullName: string
+  email: string
+  password: string
+  tenantName: string
   tenantSlug: string
+}
+
+export interface SignupTokens {
+  accessToken: string
+  refreshToken: string
+}
+
+export interface DashboardInfo {
+  totalUser: number
+  auditLogsEvent: number
+  activeUser: number
 }

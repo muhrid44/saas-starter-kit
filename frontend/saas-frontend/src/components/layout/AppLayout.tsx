@@ -2,6 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Users, ScrollText, LogOut, Building2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
+import { useMe } from '@/features/auth/hooks/getUserProfile'
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -10,8 +11,10 @@ const NAV_ITEMS = [
 ]
 
 export function AppLayout() {
+  useMe()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const isAdmin = user?.roles?.includes('Admin')
 
   const handleLogout = () => {
     logout()
@@ -30,7 +33,9 @@ export function AppLayout() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+          {NAV_ITEMS
+          .filter((item) => isAdmin || item.to !== '/audit')
+          .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
