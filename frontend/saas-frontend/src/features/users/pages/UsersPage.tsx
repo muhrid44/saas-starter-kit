@@ -112,16 +112,16 @@ export function UsersPage() {
   if (isError) return <p className="text-sm text-red-500">Failed to load users.</p>
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Users</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Users</h1>
           <p className="text-gray-500 text-sm mt-1">Manage users in your tenant.</p>
         </div>
         {isAdmin && (
           <button
             onClick={() => setModal('invite')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+            className="w-full sm:w-auto rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
           >
             + Register User
           </button>
@@ -129,8 +129,8 @@ export function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
+       <table className="min-w-[1100px] w-full text-sm">
           <thead>
             <tr className="border-b bg-gray-50">
               <th className="text-left px-4 py-3 font-medium text-gray-500">Email</th>
@@ -146,21 +146,21 @@ export function UsersPage() {
           </thead>
           <tbody>
             {users?.map((user) => (
-              <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3">{user.email}</td>
+              <tr key={user.id} className="border-b last:border-0 transition-colors hover:bg-gray-50">
+                <td className="px-4 py-3 break-all">{user.email}</td>
                 <td className="px-4 py-3">{user.fullName || '—'}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                  <span className={`inline-flex whitespace-nowrap items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {user.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
-                <td className="px-4 py-3">{user.roles?.join(', ') || '—'}</td>
-                <td className="px-4 py-3 text-gray-400">{formatDateTime(user.createdDate)}</td>
-                <td className="px-4 py-3 text-gray-400">{formatDateTime(user.modifiedDate)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{user.roles?.join(', ') || '—'}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-gray-400">{formatDateTime(user.createdDate)}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-gray-400">{formatDateTime(user.modifiedDate)}</td>
                 {isAdmin && (
                   <td className="px-4 py-3">
                     {currentUser?.id !== user.id && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex min-w-[320px] flex-wrap gap-2">
                         <button
                           onClick={() => {
                             setSelectedUser(user)
@@ -217,7 +217,7 @@ export function UsersPage() {
 
       {/* Register Modal */}
       {modal === 'invite' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Register User</h2>
             <p className="text-sm text-gray-500 mb-4">Add a new user to your workspace.</p>
@@ -226,28 +226,28 @@ export function UsersPage() {
                 <label className="text-sm font-medium block mb-1.5">Full Name</label>
                 <input type="text" placeholder="John Doe" value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="text-sm font-medium block mb-1.5">Email</label>
                 <input type="email" placeholder="john@company.com" value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="text-sm font-medium block mb-1.5">Password</label>
                 <input type="password" placeholder="••••••••" value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                 <button onClick={() => invite.mutate()} disabled={invite.isPending}
                   className="flex-1 bg-blue-600 text-white rounded-md py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
                   {invite.isPending ? 'Registering...' : 'Register'}
                 </button>
                 <button onClick={closeModal}
-                  className="flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
+                  className="w-full sm:flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
                   Cancel
                 </button>
               </div>
@@ -258,7 +258,7 @@ export function UsersPage() {
 
       {/* Change Role Modal */}
       {modal === 'role' && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Change Role</h2>
             <p className="text-sm text-gray-500 mb-4">{selectedUser.email}</p>
@@ -266,19 +266,19 @@ export function UsersPage() {
               <div>
                 <label className="text-sm font-medium block mb-1.5">Role</label>
                 <select value={role} onChange={(e) => setRole(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="User">User</option>
                   <option value="Admin">Admin</option>
                 </select>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                 <button onClick={() => updateRole.mutate()} disabled={updateRole.isPending}
                   className="flex-1 bg-blue-600 text-white rounded-md py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
                   {updateRole.isPending ? 'Saving...' : 'Save'}
                 </button>
                 <button onClick={closeModal}
-                  className="flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
+                  className="w-full sm:flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
                   Cancel
                 </button>
               </div>
@@ -289,7 +289,7 @@ export function UsersPage() {
 
       {/* Activate/Deactivate Modal */}
       {modal === 'status' && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
             <h2 className="text-lg font-semibold mb-1">
               {selectedUser.isActive ? 'Deactivate User' : 'Activate User'}
@@ -300,13 +300,13 @@ export function UsersPage() {
                 : `Are you sure you want to activate ${selectedUser.email}?`}
             </p>
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
               <button onClick={() => updateStatus.mutate()} disabled={updateStatus.isPending}
                 className={`flex-1 text-white rounded-md py-2 text-sm font-medium disabled:opacity-50 ${selectedUser.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}>
                 {updateStatus.isPending ? 'Saving...' : selectedUser.isActive ? 'Deactivate' : 'Activate'}
               </button>
               <button onClick={closeModal}
-                className="flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
+                className="w-full sm:flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
                 Cancel
               </button>
             </div>
@@ -316,7 +316,7 @@ export function UsersPage() {
 
       {/* Reset Password Modal */}
       {modal === 'resetPassword' && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Reset Password</h2>
             <p className="text-sm text-gray-500 mb-4">{selectedUser.email}</p>
@@ -325,16 +325,16 @@ export function UsersPage() {
                 <label className="text-sm font-medium block mb-1.5">New Password</label>
                 <input type="password" placeholder="••••••••" value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                 <button onClick={() => resetPassword.mutate()} disabled={resetPassword.isPending}
                   className="flex-1 bg-blue-600 text-white rounded-md py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
                   {resetPassword.isPending ? 'Saving...' : 'Reset'}
                 </button>
                 <button onClick={closeModal}
-                  className="flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
+                  className="w-full sm:flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50">
                   Cancel
                 </button>
               </div>
@@ -344,7 +344,7 @@ export function UsersPage() {
       )}
 
       {modal === 'delete' && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
             <h2 className="text-lg font-semibold mb-1 text-red-600">
               Delete User
@@ -364,7 +364,7 @@ export function UsersPage() {
               </p>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
               <button
                 onClick={() => deleteUser.mutate()}
                 disabled={deleteUser.isPending}
@@ -375,7 +375,7 @@ export function UsersPage() {
 
               <button
                 onClick={closeModal}
-                className="flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50"
+                className="w-full sm:flex-1 border rounded-md py-2 text-sm font-medium hover:bg-gray-50"
               >
                 Cancel
               </button>

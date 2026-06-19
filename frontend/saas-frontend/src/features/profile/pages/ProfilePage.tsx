@@ -56,14 +56,19 @@ export function ProfilePage() {
   })
 
   return (
-    <div className="max-w-lg">
+    <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold">Profile</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage your account settings.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">
+          Profile
+        </h1>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Manage your account settings.
+        </p>
       </div>
 
       {/* Profile Section */}
-      <div className="bg-white border rounded-lg p-6 mb-4">
+      <div className="mb-6 rounded-xl border bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-base font-semibold mb-4">Personal Information</h2>
         <div className="space-y-4">
           <div>
@@ -72,7 +77,7 @@ export function ProfilePage() {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -81,7 +86,7 @@ export function ProfilePage() {
               type="email"
               value={user?.email ?? ''}
               disabled
-              className="w-full border rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+              className="w-full rounded-md border px-3 py-2.5 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
             />
             <p className="text-xs text-gray-400 mt-1">Email cannot be changed.</p>
           </div>
@@ -92,7 +97,7 @@ export function ProfilePage() {
           <button
             onClick={() => setConfirmModal('profile')}
             disabled={updateProfile.isPending}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="w-full sm:w-auto rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
             Save Changes
           </button>
@@ -100,7 +105,7 @@ export function ProfilePage() {
       </div>
 
       {/* Password Section */}
-      <div className="bg-white border rounded-lg p-6">
+      <div className="mb-6 rounded-xl border bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-base font-semibold mb-4">Change Password</h2>
         <div className="space-y-4">
           <div>
@@ -110,7 +115,7 @@ export function ProfilePage() {
               placeholder="••••••••"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -120,7 +125,7 @@ export function ProfilePage() {
               placeholder="••••••••"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -129,7 +134,7 @@ export function ProfilePage() {
           <button
             onClick={() => setConfirmModal('password')}
             disabled={changePassword.isPending}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="w-full sm:w-auto rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
             Update Password
           </button>
@@ -139,13 +144,13 @@ export function ProfilePage() {
 
       {/* Confirm Update Profile Modal */}
       {confirmModal === 'profile' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Confirm Changes</h2>
             <p className="text-sm text-gray-500 mb-6">
               Are you sure you want to update your profile?
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => updateProfile.mutate()}
                 disabled={updateProfile.isPending}
@@ -166,13 +171,13 @@ export function ProfilePage() {
 
       {/* Confirm Change Password Modal */}
       {confirmModal === 'password' && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
             <h2 className="text-lg font-semibold mb-1">Confirm Password Change</h2>
             <p className="text-sm text-gray-500 mb-6">
               You will be logged out after changing your password. Are you sure?
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => changePassword.mutate()}
                 disabled={changePassword.isPending}

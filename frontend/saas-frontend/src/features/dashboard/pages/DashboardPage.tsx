@@ -28,38 +28,53 @@ export function DashboardPage() {
     { label: 'API Health', value: healthInfo?.status ?? 'Unknown', icon: Activity, description: 'Backend responding' },
   ]
 
-  return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold">Welcome back, {user?.email ?? 'there'}</h1>
-        <p className="text-gray-500 mt-1 text-sm">Here's what's happening in your workspace.</p>
-      </div>
+return (
+  <div className="p-4 sm:p-6 lg:p-8">
+    <div className="mb-6 sm:mb-8">
+      <h1 className="text-2xl sm:text-3xl font-bold break-words">
+        Welcome back, {user?.email ?? 'there'}
+      </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {METRIC_CARDS.filter((card) => isAdmin || card.label !== 'Audit Events').
-        map(({ label, value, icon: Icon, description }) => (
-          <div key={label} className="bg-white border rounded-lg p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-500">{label}</span>
-              <Icon className="w-4 h-4 text-gray-400" />
-            </div>
-              <div
-                className={`text-2xl font-semibold ${
-                  label === 'API Health'
-                    ? value === 'Healthy'
-                      ? 'text-green-600'
-                      : value === 'Unhealthy'
-                      ? 'text-red-600'
-                      : 'text-gray-500'
-                    : ''
-                }`}
-              >
-                {value}
-              </div>            
-              <p className="text-xs text-gray-400 mt-1">{description}</p>
-          </div>
-        ))}
-      </div>
+      <p className="mt-2 text-sm text-gray-500">
+        Here's what's happening in your workspace.
+      </p>
     </div>
-  )
-}
+
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {METRIC_CARDS.filter(
+        (card) => isAdmin || card.label !== 'Audit Events'
+      ).map(({ label, value, icon: Icon, description }) => (
+        <div
+          key={label}
+          className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">
+              {label}
+            </span>
+
+            <Icon className="h-5 w-5 text-gray-400" />
+          </div>
+
+          <div
+            className={`break-words text-3xl font-bold ${
+              label === 'API Health'
+                ? value === 'Healthy'
+                  ? 'text-green-600'
+                  : value === 'Unhealthy'
+                  ? 'text-red-600'
+                  : 'text-gray-500'
+                : ''
+            }`}
+          >
+            {value}
+          </div>
+
+          <p className="mt-2 text-xs text-gray-400">
+            {description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
