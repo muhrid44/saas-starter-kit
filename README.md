@@ -2,6 +2,7 @@
 
 A production-ready, open-source SaaS boilerplate built with **.NET 10** and **React**. Designed to give developers a solid foundation with multi-tenancy, authentication, role-based access control, audit logging, and caching — all out of the box.
 
+Developed this project with ASP.NET Core and React, utilizing AI tools such as ChatGPT and Claude AI to accelerate development, troubleshoot issues, and explore architectural solutions while maintaining ownership of implementation and technical decisions.
 ---
 
 ## Tech Stack
@@ -99,14 +100,9 @@ don't forget to setup your Redis connection!
 
 ### 3. Configure the frontend
 
-```bash
-cd frontend/saas-frontend
-cp .env.example .env.local
-```
+Update `environment` under the frontend on docker-compose.yml:
 
-Update `.env.local`:
-
-VITE_BASE_URL=http://localhost:5000
+VITE_BASE_URL=http://{YOUR_BACKEND_URL}
 
 VITE_API_VERSION=/api/v1
 
