@@ -40,5 +40,20 @@ namespace SaasStarterKit.Infrastructure.Services
         {
             await _cache.RemoveAsync(key, cancellationToken);
         }
+
+        public async Task BlacklistTokenAsync(string jti, TimeSpan expiry, CancellationToken cancellationToken)
+        {
+            await _cache.SetStringAsync(
+                $"blacklist:{jti}",
+                "revoked",
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiry },
+                cancellationToken);
+        }
+
+        public async Task<bool> IsTokenBlacklistedAsync(string jti, CancellationToken cancellationToken)
+        {
+            var value = await _cache.GetStringAsync($"blacklist:{jti}", cancellationToken);
+            return value != null;
+        }
     }
 }

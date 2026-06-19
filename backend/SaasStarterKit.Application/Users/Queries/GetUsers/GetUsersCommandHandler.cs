@@ -7,17 +7,17 @@ using SaasStarterKit.Domain.Entities;
 namespace SaasStarterKit.Application.Users.Queries.GetUsers
 {
 
-    public record UserDto(Guid Id, string Email, string FullName, bool IsActive, DateTime CreateAt, List<string> Roles);
+    public record UserDto(Guid Id, string Email, string FullName, bool IsActive, DateTime CreatedDate, DateTime? ModifiedDate, List<string> Roles);
 
     public record UsersDto : IRequest<List<UserDto>>;
 
-    public class GetUsersHandler : IRequestHandler<UsersDto, List<UserDto>>
+    public class GetUsersCommandHandler : IRequestHandler<UsersDto, List<UserDto>>
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITenantService _tenantService;
         private readonly ICacheService _cacheService;
 
-        public GetUsersHandler(UserManager<ApplicationUser> userManager, ITenantService tenantService , ICacheService cacheService)
+        public GetUsersCommandHandler(UserManager<ApplicationUser> userManager, ITenantService tenantService , ICacheService cacheService)
         {
             _userManager = userManager;
             _tenantService = tenantService;
@@ -53,15 +53,16 @@ namespace SaasStarterKit.Application.Users.Queries.GetUsers
                     user.Email,
                     user.FullName,
                     user.IsActive,
-                    user.CreateAt,
+                    user.CreatedDate,
+                    user.ModifiedDate,
                     roles.ToList()
                 ));
             }
 
             // store in cache
-            await _cacheService.SetAsync(cacheKey, users, cancellationToken: cancellationToken);
+            await _cacheService.SetAsync(cacheKey, userDtos, cancellationToken: cancellationToken);
 
-            return userDtos;
+            return userDtos.OrderByDescending(res => res.ModifiedDate).ToList();
         }
     }
 }

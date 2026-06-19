@@ -8,7 +8,7 @@ using SaasStarterKit.Application.AuditLogs.Queries;
 namespace SaasStarterKit.API.Controllers
 {
     [EnableRateLimiting("general")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class AuditLogsController : ControllerBase

@@ -12,12 +12,16 @@ namespace SaasStarterKit.Application.Users.Commands.Login
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtService _jwtService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IAuditLogRepository _auditLogRepository;
+        private readonly IDbTransactionService _dbTransactionService;
 
-        public LoginUserCommandHandler(UserManager<ApplicationUser> userManager, IJwtService jwtService, IRefreshTokenRepository refreshTokenRepository)
+        public LoginUserCommandHandler(UserManager<ApplicationUser> userManager, IJwtService jwtService, IRefreshTokenRepository refreshTokenRepository, IAuditLogRepository auditLogRepository, IDbTransactionService dbTransactionService)
         {
             _userManager = userManager;
             _jwtService = jwtService;
             _refreshTokenRepository = refreshTokenRepository;
+            _auditLogRepository = auditLogRepository;
+            _dbTransactionService = dbTransactionService;
         }
 
         public async Task<AuthResponse> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -27,10 +31,28 @@ namespace SaasStarterKit.Application.Users.Commands.Login
             if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
                 throw new UnauthorizedAccessException("Invalid email or password.");
 
-            var accessToken = _jwtService.GenerateToken(user);
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Your account has been deactivated.");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var accessToken = _jwtService.GenerateToken(user, roles.FirstOrDefault() ?? "User"); 
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
 
-            await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+            await using var transaction = await _dbTransactionService.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+                await _auditLogRepository.LogAsync("Login", $"{user.FullName} has logged in", cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+
+
 
             return new AuthResponse(accessToken, refreshToken.Token);
         }

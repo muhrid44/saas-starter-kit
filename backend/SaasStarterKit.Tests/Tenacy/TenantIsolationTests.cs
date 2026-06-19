@@ -14,7 +14,7 @@ namespace SaasStarterKit.Tests.Tenacy
         private Mock<UserManager<ApplicationUser>> _userManagerMock;
         private Mock<ITenantService> _tenantServiceMock;
         private Mock<ICacheService> _cacheServiceMock;
-        private GetUsersHandler _handler;
+        private GetUsersCommandHandler _handler;
 
         [SetUp]
         public void SetUp()
@@ -27,7 +27,12 @@ namespace SaasStarterKit.Tests.Tenacy
 
             _cacheServiceMock = new Mock<ICacheService>();
 
-            _handler = new GetUsersHandler(
+            // Mock GetRolesAsync to return empty list by default
+            _userManagerMock
+                .Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync(new List<string>());
+
+            _handler = new GetUsersCommandHandler(
                 _userManagerMock.Object,
                 _tenantServiceMock.Object,
                 _cacheServiceMock.Object);

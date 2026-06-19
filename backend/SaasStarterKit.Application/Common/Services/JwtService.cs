@@ -19,7 +19,7 @@ namespace SaasStarterKit.Application.Common.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateToken(ApplicationUser user)
+        public string GenerateToken(ApplicationUser user, string role)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
 
@@ -31,7 +31,8 @@ namespace SaasStarterKit.Application.Common.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.FullName),
-                new Claim("TenantId", user.TenantId.ToString())
+                new Claim("TenantId", user.TenantId.ToString()),
+                new Claim(ClaimTypes.Role, role)
             };
 
             var token = new JwtSecurityToken(
@@ -52,7 +53,7 @@ namespace SaasStarterKit.Application.Common.Services
                 Id = Guid.NewGuid(),
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
-                CreatedAt = DateTime.UtcNow,
+                CreatedDate = DateTime.UtcNow,
                 IsRevoked = false,
                 UserId = userId
             };

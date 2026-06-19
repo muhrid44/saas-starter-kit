@@ -29,5 +29,19 @@ namespace SaasStarterKit.Infrastructure.Repositories
             _context.RefreshTokens.Update(refreshToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task RevokeAllByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            var tokens = await _context.RefreshTokens
+                .Where(r => r.UserId == userId && !r.IsRevoked)
+                .ToListAsync(cancellationToken);
+
+            foreach (var token in tokens)
+            {
+                token.IsRevoked = true;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
     }
 }

@@ -32,6 +32,16 @@ namespace SaasStarterKit.Infrastructure
             "PhoneNumberConfirmed"
         };
 
+        private static readonly HashSet<string> IgnoredEntities =
+        [
+            nameof(RefreshToken),
+            "IdentityUserRole`1",
+            "IdentityUserClaim`1",
+            "IdentityUserToken`1",
+            "IdentityRoleClaim`1",
+            "IdentityUserLogin`1"
+        ];
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService, IHttpContextAccessor httpContextAccessor) : base(options)
         {
             _tenantService = tenantService;
@@ -41,92 +51,6 @@ namespace SaasStarterKit.Infrastructure
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Tenant> Tenants => Set<Tenant>();
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var auditLogs = GenerateAuditLogs();
-            var result = await base.SaveChangesAsync(cancellationToken);
-
-            if (auditLogs.Any())
-            {
-                await AuditLogs.AddRangeAsync(auditLogs, cancellationToken);
-                await base.SaveChangesAsync(cancellationToken);
-            }
-
-            return result;
-        }
-
-        private List<AuditLog> GenerateAuditLogs()
-        {
-            var auditLogs = new List<AuditLog>();
-            var changedBy = _httpContextAccessor.HttpContext?.User
-                .FindFirst(ClaimTypes.Email)?.Value;
-            var tenantId = _tenantService.GetCurrentTenantId();
-
-            foreach (var entry in ChangeTracker.Entries())
-            {
-                if (entry.Entity is AuditLog) continue;
-                if (entry.State == EntityState.Detached ||
-                    entry.State == EntityState.Unchanged) continue;
-
-                // enrich changedBy from entity if JWT not available
-                var effectiveChangedBy = changedBy;
-                if (string.IsNullOrEmpty(effectiveChangedBy))
-                {
-                    effectiveChangedBy = entry.Entity switch
-                    {
-                        ApplicationUser u => u.Email,
-                        RefreshToken r => r.User?.Email,
-                        _ => "System"  // ← fallback for any other entity with no HTTP context
-                    };
-                }
-
-                // enrich tenantId from entity if not available  
-                var effectiveTenantId = tenantId == Guid.Empty
-                    ? entry.Entity switch
-                    {
-                        ApplicationUser u => (Guid?)u.TenantId,
-                        RefreshToken r => r.User?.TenantId,
-                        _ => null
-                    }
-                    : (Guid?)tenantId;
-
-                var action = entry.State switch
-                {
-                    EntityState.Added => "Created",
-                    EntityState.Modified => "Updated",
-                    EntityState.Deleted => "Deleted",
-                    _ => "Unknown"
-                };
-
-                var oldValues = entry.State == EntityState.Modified
-                    ? JsonSerializer.Serialize(entry.OriginalValues.Properties
-                        .Where(p => !SensitiveProperties.Contains(p.Name))
-                        .ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString()))
-                    : null;
-
-                var newValues = entry.State != EntityState.Deleted
-                    ? JsonSerializer.Serialize(entry.CurrentValues.Properties
-                        .Where(p => !SensitiveProperties.Contains(p.Name))
-                        .ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString()))
-                    : null;
-
-                auditLogs.Add(new AuditLog
-                {
-                    Id = Guid.NewGuid(),
-                    EntityName = entry.Entity.GetType().Name,
-                    Action = action,
-                    OldValues = oldValues,
-                    NewValues = newValues,
-                    ChangedBy = effectiveChangedBy,
-                    ChangedAt = DateTime.UtcNow,
-                    TenantId = effectiveTenantId == Guid.Empty ? null : effectiveTenantId
-                });
-            }
-
-            return auditLogs;
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // This is required for setup the Identity framework
@@ -159,6 +83,7 @@ namespace SaasStarterKit.Infrastructure
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(u => u.FullName).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.CreatedDate).HasColumnName("CreatedDate");
                 entity.HasOne(u => u.Tenant)
                       .WithMany()
                       .HasForeignKey(u => u.TenantId)
@@ -169,6 +94,7 @@ namespace SaasStarterKit.Infrastructure
             {
                 entity.HasKey(r => r.Id);
                 entity.Property(r => r.Token).IsRequired();
+                entity.Property(r => r.CreatedDate).HasColumnName("CreatedDate");
                 entity.HasIndex(r => r.Token).IsUnique();
                 entity.HasOne(r => r.User)
                     .WithMany()
@@ -179,8 +105,7 @@ namespace SaasStarterKit.Infrastructure
             modelBuilder.Entity<AuditLog>(entity =>
             {
                 entity.HasKey(a => a.Id);
-                entity.Property(a => a.EntityName).IsRequired().HasMaxLength(100);
-                entity.Property(a => a.Action).IsRequired().HasMaxLength(50);
+                entity.Property(a => a.EventName).IsRequired().HasMaxLength(100);
                 entity.Property(a => a.ChangedBy).HasMaxLength(255);
             });
         }

@@ -40,11 +40,12 @@ namespace SaasStarterKit.Application.Users.Commands.RefreshToken
             await _refreshTokenRepository.UpdateAsync(existingToken, cancellationToken);
 
             // Generate new tokens
-            var newAccessToken = _jwtService.GenerateToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var accessToken = _jwtService.GenerateToken(user, roles.FirstOrDefault() ?? "User");
             var newRefreshToken = _jwtService.GenerateRefreshToken(user.Id);
             await _refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
 
-            return new AuthResponse(newAccessToken, newRefreshToken.Token);
+            return new AuthResponse(accessToken, newRefreshToken.Token);
         }
     }
 }

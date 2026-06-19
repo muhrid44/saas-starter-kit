@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using SaasStarterKit.API.Middleware;
 using SaasStarterKit.API.Utils;
 using SaasStarterKit.Application.Common.Settings;
-using SaasStarterKit.Application.Users.Commands.CreateUser;
+using SaasStarterKit.Application.Users.Commands.User;
 using SaasStarterKit.Domain.Entities;
 using SaasStarterKit.Infrastructure;
 using Scalar.AspNetCore;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 
 namespace SaasStarterKit
@@ -64,7 +65,6 @@ namespace SaasStarterKit
                 };
             });
 
-            // Add services to the container.
             // Add MediatR
             builder.Services.AddMediatR(cfg =>
                 cfg.RegisterServicesFromAssembly(
@@ -150,6 +150,14 @@ namespace SaasStarterKit
                 });
             });
 
+            builder.Services.AddHealthChecks()
+                .AddNpgSql(
+                    builder.Configuration.GetConnectionString("NpgSqlConnection")!,
+                    name: "postgres")
+                .AddRedis(
+                    builder.Configuration.GetConnectionString("Redis")!,
+                    name: "redis");
+
             var app = builder.Build();
 
             //Automatically apply pending migrations on application startup
@@ -157,6 +165,15 @@ namespace SaasStarterKit
             {
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 db.Database.Migrate();
+
+                // Seed roles
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                string[] roles = ["Admin", "User"];
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                }
 
                 //Seed test user
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -174,7 +191,8 @@ namespace SaasStarterKit
                         Email = "test@test.com",
                         FullName = "Test User",
                         IsActive = true,
-                        CreateAt = DateTime.UtcNow,
+                        CreatedDate = DateTime.UtcNow,
+                        ModifiedDate = DateTime.UtcNow,
                         TenantId = defaultTenantId
                     };
 
@@ -216,6 +234,28 @@ namespace SaasStarterKit
             });
 
             app.MapControllers();
+
+            app.MapHealthChecks("/health", new HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    context.Response.ContentType = "application/json";
+
+                    var result = new
+                    {
+                        status = report.Status.ToString(),
+                        checks = report.Entries.Select(x => new
+                        {
+                            name = x.Key,
+                            status = x.Value.Status.ToString(),
+                            description = x.Value.Description,
+                            duration = x.Value.Duration.TotalMilliseconds
+                        }),
+                    };
+
+                    await context.Response.WriteAsJsonAsync(result);
+                }
+            });
 
             app.Run();
         }

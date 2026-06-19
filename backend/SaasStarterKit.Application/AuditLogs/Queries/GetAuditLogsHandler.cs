@@ -8,12 +8,11 @@ namespace SaasStarterKit.Application.AuditLogs.Queries
 {
     public record AuditLogDto(
        Guid Id,
-       string EntityName,
-       string Action,
-       string? OldValues,
-       string? NewValues,
-       string? ChangedBy,
-       DateTime ChangedAt
+       string EventName,
+       string Description,
+       string ChangedBy,
+       DateTime ChangedDate,
+       Guid? TenantId
    );
 
     public record GetAuditLogsQuery : IRequest<List<AuditLogDto>>;

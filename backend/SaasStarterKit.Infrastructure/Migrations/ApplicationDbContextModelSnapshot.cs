@@ -165,8 +165,9 @@ namespace SaasStarterKit.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -187,6 +188,9 @@ namespace SaasStarterKit.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
@@ -239,28 +243,22 @@ namespace SaasStarterKit.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("ChangedBy")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<string>("EntityName")
+                    b.Property<DateTime>("ChangedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("NewValues")
-                        .HasColumnType("text");
-
-                    b.Property<string>("OldValues")
-                        .HasColumnType("text");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -276,8 +274,9 @@ namespace SaasStarterKit.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");

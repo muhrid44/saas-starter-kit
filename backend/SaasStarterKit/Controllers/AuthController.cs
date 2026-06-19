@@ -1,11 +1,13 @@
 ﻿using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using SaasStarterKit.Application.Common.Jobs;
-using SaasStarterKit.Application.Users.Commands.CreateUser;
 using SaasStarterKit.Application.Users.Commands.Login;
 using SaasStarterKit.Application.Users.Commands.RefreshToken;
+using SaasStarterKit.Application.Users.Commands.Tenant;
+using SaasStarterKit.Application.Users.Commands.User;
 
 namespace SaasStarterKit.API.Controllers
 {
@@ -22,6 +24,7 @@ namespace SaasStarterKit.API.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
         {
             var userId = await _mediator.Send(command, cancellationToken);
@@ -44,6 +47,14 @@ namespace SaasStarterKit.API.Controllers
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
+        }
+
+        [HttpPost("signup")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Signup([FromBody] SignupCommand command)
+        {
+            var token = await _mediator.Send(command);
+            return Ok(new { Token = token });
         }
     }
 }

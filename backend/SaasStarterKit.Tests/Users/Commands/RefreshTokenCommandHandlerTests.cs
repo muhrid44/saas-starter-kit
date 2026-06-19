@@ -51,7 +51,7 @@ namespace SaasStarterKit.Tests.Users.Commands
                 Token = "valid-refresh-token",
                 UserId = userId,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
-                CreatedAt = DateTime.UtcNow,
+                CreatedDate = DateTime.UtcNow,
                 IsRevoked = false
             };
 
@@ -63,8 +63,12 @@ namespace SaasStarterKit.Tests.Users.Commands
                 .Setup(x => x.FindByIdAsync(userId.ToString()))
                 .ReturnsAsync(user);
 
+            _userManagerMock
+                .Setup(x => x.GetRolesAsync(user))
+                .ReturnsAsync(new List<string> { "Admin" });
+
             _jwtServiceMock
-                .Setup(x => x.GenerateToken(user))
+                .Setup(x => x.GenerateToken(user, "Admin"))
                 .Returns("new-access-token");
 
             _jwtServiceMock
@@ -75,7 +79,7 @@ namespace SaasStarterKit.Tests.Users.Commands
                     Token = "new-refresh-token",
                     UserId = userId,
                     ExpiresAt = DateTime.UtcNow.AddDays(7),
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     IsRevoked = false
                 });
 

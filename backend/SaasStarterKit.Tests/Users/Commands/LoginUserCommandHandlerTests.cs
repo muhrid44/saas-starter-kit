@@ -3,9 +3,7 @@ using Moq;
 using SaasStarterKit.Application.Common.Interfaces;
 using SaasStarterKit.Application.Users.Commands.Login;
 using SaasStarterKit.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace SaasStarterKit.Tests.Users.Commands
 {
@@ -15,6 +13,9 @@ namespace SaasStarterKit.Tests.Users.Commands
         private Mock<UserManager<ApplicationUser>> _userManagerMock;
         private Mock<IJwtService> _jwtServiceMock;
         private Mock<IRefreshTokenRepository> _refreshTokenRepositoryMock;
+        private Mock<IAuditLogRepository> _auditLogRepository;
+        private Mock<IDbTransactionService> _dbTransactionService;
+
         private LoginUserCommandHandler _handler;
         [SetUp]
         public void SetUp()
@@ -25,11 +26,37 @@ namespace SaasStarterKit.Tests.Users.Commands
 
             _jwtServiceMock = new Mock<IJwtService>();
             _refreshTokenRepositoryMock = new Mock<IRefreshTokenRepository>();
+            _auditLogRepository = new Mock<IAuditLogRepository>();
+            _dbTransactionService = new Mock<IDbTransactionService>();
+
+            // Setup mock for transaction
+            var mockTransaction = new Mock<IDbContextTransaction>();
+            mockTransaction
+                .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+            mockTransaction
+                .Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _dbTransactionService
+                .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockTransaction.Object);
+
+            // Setup default mocks for repositories
+            _refreshTokenRepositoryMock
+                .Setup(x => x.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _auditLogRepository
+                .Setup(x => x.LogAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
 
             _handler = new LoginUserCommandHandler(
                 _userManagerMock.Object,
                 _jwtServiceMock.Object,
-                _refreshTokenRepositoryMock.Object);
+                _refreshTokenRepositoryMock.Object,
+                _auditLogRepository.Object,
+                _dbTransactionService.Object);
         }
 
         [Test]
@@ -40,7 +67,8 @@ namespace SaasStarterKit.Tests.Users.Commands
             {
                 Id = Guid.NewGuid(),
                 Email = "test@test.com",
-                FullName = "Test User"
+                FullName = "Test User",
+                IsActive = true
             };
 
             _userManagerMock
@@ -51,8 +79,12 @@ namespace SaasStarterKit.Tests.Users.Commands
                 .Setup(x => x.CheckPasswordAsync(user, "Test@123456"))
                 .ReturnsAsync(true);
 
+            _userManagerMock
+                .Setup(x => x.GetRolesAsync(user))
+                .ReturnsAsync(new List<string> { "Admin" });
+
             _jwtServiceMock
-                .Setup(x => x.GenerateToken(user))
+                .Setup(x => x.GenerateToken(user, "Admin"))
                 .Returns("fake-access-token");
 
             _jwtServiceMock
@@ -63,7 +95,7 @@ namespace SaasStarterKit.Tests.Users.Commands
                     Token = "fake-refresh-token",
                     UserId = user.Id,
                     ExpiresAt = DateTime.UtcNow.AddDays(7),
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     IsRevoked = false
                 });
 

@@ -17,6 +17,8 @@ namespace SaasStarterKit.API.Utils
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+            builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+            builder.Services.AddScoped<IDbTransactionService, DbTransactionService>();
         }
     }
 }

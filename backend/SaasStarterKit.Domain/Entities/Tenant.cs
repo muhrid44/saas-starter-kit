@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SaasStarterKit.Domain.Entities
+﻿namespace SaasStarterKit.Domain.Entities
 {
     public class Tenant
     {

@@ -1,42 +1,75 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SaasStarterKit.Application.AuditLogs.Queries;
 using SaasStarterKit.Application.Common.Interfaces;
+using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Domain.Entities;
-using System.Text.Json;
+using System.Security.Claims;
 
 namespace SaasStarterKit.Infrastructure.Repositories
 {
     public class AuditLogRepository : IAuditLogRepository
     {
-        private readonly ITenantService _tenantService;
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITenantService _tenantService;
 
-        public AuditLogRepository(ITenantService tenantService, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AuditLogRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, ITenantService tenantService)
         {
-            _tenantService = tenantService;
             _context = context;
-            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            _tenantService = tenantService;
         }
 
         public async Task<List<AuditLogDto>> GetAuditLogsAsync(Guid tenantId, CancellationToken cancellationToken)
         {
             var auditLogs = await _context.AuditLogs
                 .Where(a => a.TenantId == tenantId)
-                .OrderByDescending(a => a.ChangedAt)
+                .OrderByDescending(a => a.ChangedDate)
                 .Select(a => new AuditLogDto(
                     a.Id,
-                    a.EntityName,
-                    a.Action,
-                    a.OldValues,
-                    a.NewValues,
+                    a.EventName,
+                    a.Description,
                     a.ChangedBy,
-                    a.ChangedAt
+                    a.ChangedDate,
+                    a.TenantId
                 ))
                 .ToListAsync(cancellationToken);
 
             return auditLogs;
+        }
+
+        public async Task<int> GetCountAuditLogsEvent(Guid tenantId, CancellationToken cancellationToken)
+        {
+            var cutoffDate = DateTime.UtcNow.AddDays(-30);
+
+            return await _context.AuditLogs.CountAsync(
+                a => a.TenantId == tenantId &&
+                     a.ChangedDate >= cutoffDate,
+                cancellationToken);
+        }
+
+        public async Task LogAsync(
+        string eventName,
+        string description,
+        CancellationToken cancellationToken = default)
+        {
+            var changedBy =
+                _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value
+                ?? "System";
+
+            _context.AuditLogs.Add(new AuditLog
+            {
+                Id = Guid.NewGuid(),
+                EventName = eventName,
+                Description = description,
+                ChangedBy = changedBy,
+                ChangedDate = DateTime.UtcNow,
+                TenantId = _tenantService.GetCurrentTenantId()
+            });
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
