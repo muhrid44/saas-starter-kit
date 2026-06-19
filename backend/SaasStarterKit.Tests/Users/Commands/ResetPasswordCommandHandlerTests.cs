@@ -18,6 +18,7 @@ namespace SaasStarterKit.Tests.Users.Commands
         private Mock<IDbTransactionService> _dbTransactionServiceMock;
         private Mock<IRefreshTokenRepository> _refreshTokenRepositoryMock;
         private Mock<IAuditLogRepository> _auditLogRepositoryMock;
+        private Mock<ICacheService> _cacheServiceMock;
         private ResetPasswordCommandHandler _handler;
 
         [SetUp]
@@ -31,6 +32,7 @@ namespace SaasStarterKit.Tests.Users.Commands
             _dbTransactionServiceMock = new Mock<IDbTransactionService>();
             _refreshTokenRepositoryMock = new Mock<IRefreshTokenRepository>();
             _auditLogRepositoryMock = new Mock<IAuditLogRepository>();
+            _cacheServiceMock = new Mock<ICacheService>();
 
             // Setup default mocks
             var mockTransaction = new Mock<IDbContextTransaction>();
@@ -58,7 +60,8 @@ namespace SaasStarterKit.Tests.Users.Commands
                 _tenantServiceMock.Object,
                 _dbTransactionServiceMock.Object,
                 _refreshTokenRepositoryMock.Object,
-                _auditLogRepositoryMock.Object);
+                _auditLogRepositoryMock.Object,
+                _cacheServiceMock.Object);
         }
 
         [Test]

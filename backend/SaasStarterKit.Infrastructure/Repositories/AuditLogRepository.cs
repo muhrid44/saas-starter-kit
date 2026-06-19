@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SaasStarterKit.Application.AuditLogs.Queries;
 using SaasStarterKit.Application.Common.Interfaces;
-using SaasStarterKit.Application.Common.Services;
 using SaasStarterKit.Domain.Entities;
 using System.Security.Claims;
 
@@ -22,11 +20,21 @@ namespace SaasStarterKit.Infrastructure.Repositories
             _tenantService = tenantService;
         }
 
-        public async Task<List<AuditLogDto>> GetAuditLogsAsync(Guid tenantId, CancellationToken cancellationToken)
+        public async Task<(List<AuditLogDto> Items, int TotalCount)> GetAuditLogsAsync(
+            Guid tenantId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken)
         {
-            var auditLogs = await _context.AuditLogs
+            var query = _context.AuditLogs
                 .Where(a => a.TenantId == tenantId)
-                .OrderByDescending(a => a.ChangedDate)
+                .OrderByDescending(a => a.ChangedDate);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(a => new AuditLogDto(
                     a.Id,
                     a.EventName,
@@ -37,9 +45,8 @@ namespace SaasStarterKit.Infrastructure.Repositories
                 ))
                 .ToListAsync(cancellationToken);
 
-            return auditLogs;
+            return (items, totalCount);
         }
-
         public async Task<int> GetCountAuditLogsEvent(Guid tenantId, CancellationToken cancellationToken)
         {
             var cutoffDate = DateTime.UtcNow.AddDays(-30);

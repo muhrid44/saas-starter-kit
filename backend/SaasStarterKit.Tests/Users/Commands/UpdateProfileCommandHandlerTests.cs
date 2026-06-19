@@ -4,8 +4,6 @@ using Moq;
 using SaasStarterKit.Application.Common.Interfaces;
 using SaasStarterKit.Application.Users.Commands.User;
 using SaasStarterKit.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;

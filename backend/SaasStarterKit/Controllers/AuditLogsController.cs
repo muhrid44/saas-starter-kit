@@ -21,9 +21,9 @@ namespace SaasStarterKit.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAuditLogs()
+        public async Task<IActionResult> GetAuditLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
-            var result = await _mediator.Send(new GetAuditLogsQuery());
+            var result = await _mediator.Send(new GetAuditLogsQuery(page, pageSize));
             return Ok(result);
         }
     }

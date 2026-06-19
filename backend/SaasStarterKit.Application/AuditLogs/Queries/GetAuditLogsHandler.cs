@@ -1,23 +1,28 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
 using SaasStarterKit.Application.Common.Interfaces;
-using SaasStarterKit.Domain.Entities;
-
 
 namespace SaasStarterKit.Application.AuditLogs.Queries
 {
     public record AuditLogDto(
-       Guid Id,
-       string EventName,
-       string Description,
-       string ChangedBy,
-       DateTime ChangedDate,
-       Guid? TenantId
-   );
+        Guid Id,
+        string EventName,
+        string Description,
+        string? ChangedBy,
+        DateTime ChangedDate,
+        Guid? TenantId
+    );
 
-    public record GetAuditLogsQuery : IRequest<List<AuditLogDto>>;
+    public record PaginatedResult<T>(
+        List<T> Items,
+        int TotalCount,
+        int Page,
+        int PageSize,
+        int TotalPages
+    );
 
-    public class GetAuditLogsHandler : IRequestHandler<GetAuditLogsQuery, List<AuditLogDto>>
+    public record GetAuditLogsQuery(int Page = 1, int PageSize = 20) : IRequest<PaginatedResult<AuditLogDto>>;
+
+    public class GetAuditLogsHandler : IRequestHandler<GetAuditLogsQuery, PaginatedResult<AuditLogDto>>
     {
         private readonly IAuditLogRepository _auditLogRepository;
         private readonly ITenantService _tenantService;
@@ -28,11 +33,25 @@ namespace SaasStarterKit.Application.AuditLogs.Queries
             _tenantService = tenantService;
         }
 
-        public async Task<List<AuditLogDto>> Handle(GetAuditLogsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<AuditLogDto>> Handle(GetAuditLogsQuery request, CancellationToken cancellationToken)
         {
             var currentTenantId = _tenantService.GetCurrentTenantId();
 
-            return await _auditLogRepository.GetAuditLogsAsync(currentTenantId, cancellationToken);
+            var (items, totalCount) = await _auditLogRepository.GetAuditLogsAsync(
+                currentTenantId,
+                request.Page,
+                request.PageSize,
+                cancellationToken);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+            return new PaginatedResult<AuditLogDto>(
+                items,
+                totalCount,
+                request.Page,
+                request.PageSize,
+                totalPages
+            );
         }
     }
 }

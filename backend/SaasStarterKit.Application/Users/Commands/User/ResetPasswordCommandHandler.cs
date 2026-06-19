@@ -16,15 +16,17 @@ namespace SaasStarterKit.Application.Users.Commands.User
         private readonly IDbTransactionService _dbTransactionService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IAuditLogRepository _auditLogRepository;
+        private readonly ICacheService _cacheService;
 
 
-        public ResetPasswordCommandHandler(UserManager<ApplicationUser> userManager, ITenantService tenantService, IDbTransactionService dbTransactionService, IRefreshTokenRepository refreshTokenRepository, IAuditLogRepository auditLogRepository)
+        public ResetPasswordCommandHandler(UserManager<ApplicationUser> userManager, ITenantService tenantService, IDbTransactionService dbTransactionService, IRefreshTokenRepository refreshTokenRepository, IAuditLogRepository auditLogRepository, ICacheService cacheService)
         {
             _userManager = userManager;
             _tenantService = tenantService;
             _dbTransactionService = dbTransactionService;
             _refreshTokenRepository = refreshTokenRepository;
             _auditLogRepository = auditLogRepository;
+            _cacheService = cacheService;
         }
 
         public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -57,6 +59,10 @@ namespace SaasStarterKit.Application.Users.Commands.User
                 }
 
                 await _refreshTokenRepository.RevokeAllByUserIdAsync(user.Id, cancellationToken);
+
+                var cacheKey = $"users:tenant:{user.TenantId}";
+
+                await _cacheService.RemoveAsync(cacheKey);
 
                 await _auditLogRepository.LogAsync("Password Reset", $"{user.FullName}'s password has been reset", cancellationToken);
 
