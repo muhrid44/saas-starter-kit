@@ -39,5 +39,12 @@ namespace SaasStarterKit.API.Controllers
             await _mediator.Send(command);
             return NoContent();
         }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            await _mediator.Send(new DeleteUserCommand(id));
+            return NoContent();
+        }
     }
 }

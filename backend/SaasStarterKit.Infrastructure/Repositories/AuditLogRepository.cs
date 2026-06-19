@@ -52,12 +52,15 @@ namespace SaasStarterKit.Infrastructure.Repositories
 
         public async Task LogAsync(
         string eventName,
-        string description,
-        CancellationToken cancellationToken = default)
+        string description,        
+        CancellationToken cancellationToken = default,
+        Guid? tenantGuid = null)
         {
             var changedBy =
                 _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value
                 ?? "System";
+
+            var tenantId = tenantGuid != null ? tenantGuid : _tenantService.GetCurrentTenantId();
 
             _context.AuditLogs.Add(new AuditLog
             {
@@ -66,7 +69,7 @@ namespace SaasStarterKit.Infrastructure.Repositories
                 Description = description,
                 ChangedBy = changedBy,
                 ChangedDate = DateTime.UtcNow,
-                TenantId = _tenantService.GetCurrentTenantId()
+                TenantId = tenantId
             });
 
             await _context.SaveChangesAsync(cancellationToken);

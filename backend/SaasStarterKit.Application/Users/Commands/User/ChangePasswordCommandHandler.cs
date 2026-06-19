@@ -17,14 +17,16 @@ namespace SaasStarterKit.Application.Users.Commands.User
         private readonly ICacheService _cacheService;
         private readonly IDbTransactionService _dbTransactionService;
         private readonly IAuditLogRepository _auditLogRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ICacheService cacheService, IDbTransactionService dbTransactionService, IAuditLogRepository auditLogRepository)
+        public ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ICacheService cacheService, IDbTransactionService dbTransactionService, IAuditLogRepository auditLogRepository, IRefreshTokenRepository refreshTokenRepository)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _cacheService = cacheService;
             _dbTransactionService = dbTransactionService;
             _auditLogRepository = auditLogRepository;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -67,6 +69,8 @@ namespace SaasStarterKit.Application.Users.Commands.User
 
                 if (!string.IsNullOrEmpty(jti))
                     await _cacheService.BlacklistTokenAsync(jti, TimeSpan.FromMinutes(60), cancellationToken);
+
+                await _refreshTokenRepository.RevokeAllByUserIdAsync(user.Id, cancellationToken);
 
                 await _auditLogRepository.LogAsync("Change Password", $"{user.FullName} has changed the password", cancellationToken);
 

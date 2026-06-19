@@ -43,7 +43,7 @@ namespace SaasStarterKit.Application.Users.Commands.Login
             try
             {
                 await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-                await _auditLogRepository.LogAsync("Login", $"{user.FullName} has logged in", cancellationToken);
+                await _auditLogRepository.LogAsync("Login", $"{user.FullName} has logged in", cancellationToken, user.TenantId);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch

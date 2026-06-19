@@ -6,6 +6,6 @@ namespace SaasStarterKit.Application.Common.Interfaces
     {
         Task<List<AuditLogDto>> GetAuditLogsAsync(Guid tenantId, CancellationToken cancellationToken);
         Task<int> GetCountAuditLogsEvent(Guid tenantId, CancellationToken cancellationToken);
-        Task LogAsync(string eventName, string description, CancellationToken cancellationToken = default);
+        Task LogAsync(string eventName, string description, CancellationToken cancellationToken = default, Guid? tenantGuid = null);
     }
 }
