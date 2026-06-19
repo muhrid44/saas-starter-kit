@@ -44,6 +44,29 @@ A production-ready, open-source SaaS boilerplate built with **.NET 10** and **Re
 
 ---
 
+## 🚀 Demo
+
+A live demo of **SaaS Starter Kit** is available for anyone who wants to explore the application.
+
+### What you can do
+
+- ✅ Register a new account
+- ✅ Create your own tenant
+- ✅ Explore the dashboard and features
+- ✅ Manage your own data
+- ✅ Experience a real multi-tenant SaaS application
+
+### Multi-Tenant Isolation
+
+This application implements **tenant isolation**, meaning that each registered account belongs to its own tenant. You can only access and manage data within your own tenant, ensuring that your actions will not affect other users.
+
+Feel free to create an account and experiment with the application.
+
+> **Note**
+> This is a public demo environment intended for portfolio purposes. Data may be modified or reset without prior notice.
+
+**Live Demo:** https://your-demo-url.azurewebsites.net
+
 ## Getting Started
 
 ### Prerequisites
