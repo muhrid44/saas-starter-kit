@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, ScrollText, LogOut, Building2 } from 'lucide-react'
+import { LayoutDashboard, Users, ScrollText, LogOut, Building2, Settings } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
 import { useMe } from '@/features/auth/hooks/getUserProfile'
@@ -53,6 +53,21 @@ export function AppLayout() {
             </NavLink>
           ))}
         </nav>
+
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 hover:bg-gray-100'
+            )
+          }
+        >
+          <Settings className="w-4 h-4" />
+          Profile
+        </NavLink>
 
         {/* User + logout */}
         <div className="p-3 border-t">
