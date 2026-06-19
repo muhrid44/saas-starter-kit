@@ -66,7 +66,7 @@ Feel free to create an account and experiment with the application.
 > **Note**
 > This is a public demo environment intended for portfolio purposes. Data may be modified or reset without prior notice.
 
-**Live Demo:** [https://your-demo-url.azurewebsites.net](https://saasstarterkitwa1.azurewebsites.net/) hopefully it's still live XD
+**Live Demo:** [https://your-demo-url.azurewebsites.net](https://saasstarterkitwa1.azurewebsites.net)](https://saasstarterkitwa1.azurewebsites.net/) hopefully it's still live XD
 
 ## Getting Started
 
