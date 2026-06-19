@@ -47,9 +47,8 @@ A production-ready, open-source SaaS boilerplate built with **.NET 10** and **Re
 ## Getting Started
 
 ### Prerequisites
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Node.js 20+](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/install/)
+- [Node.js 20+](https://nodejs.org) (for frontend only)
 
 ### 1. Clone the repo
 
@@ -60,62 +59,36 @@ cd saas-starter-kit
 
 ### 2. Configure the backend
 
-Copy and update the connection strings and JWT secret:
+Open `docker-compose.yml` and update the environment variables:
 
-```bash
-cd backend/SaasStarterKit
-cp appsettings.json appsettings.Development.json
+```yaml
+JWT_SECRET_KEY: your-strong-secret-key-minimum-32-characters
+POSTGRES_PASSWORD: your-postgres-password
 ```
 
-Update `appsettings.Development.json`:
-
-```json
-{
-  "JwtSettings": {
-    "SecretKey": "your-strong-secret-key-minimum-32-characters"
-  },
-  "ConnectionStrings": {
-    "NpgSqlConnection": "Host=localhost;Port=5432;Database=saas_starter;Username=postgres;Password=your-password",
-    "Redis": "localhost:6379"
-  }
-}
-```
-
-### 3. Start infrastructure (PostgreSQL + Redis)
-
-```bash
-docker-compose up db redis
-```
-
-### 4. Run the backend
-
-```bash
-cd backend/SaasStarterKit
-dotnet run
-```
-
-API will be available at `http://localhost:5000`
-Scalar docs at `http://localhost:5000/scalar/v1`
-
-### 5. Configure the frontend
+### 3. Configure the frontend
 
 ```bash
 cd frontend/saas-frontend
 cp .env.example .env.local
 ```
 
-Update `.env.local`:
+Update `.env.local`:```
 
-VITE_API_URL=http://localhost:5000/api/v1
+VITE_BASE_URL=http://localhost:5000
 
-### 6. Run the frontend
+VITE_API_VERSION=/api/v1
+
+### 4. Run
 
 ```bash
-npm install
-npm run dev
+docker-compose up -d
 ```
 
-Frontend will be available at `http://localhost:5173`
+That's it! 🚀
+
+Access the app at the ports configured in your `docker-compose.yml`.
+- Scalar API docs available at `/scalar/v1`
 
 ---
 
