@@ -2,7 +2,8 @@
 
 A production-ready, open-source SaaS boilerplate built with **.NET 10** and **React**. Designed to give developers a solid foundation with multi-tenancy, authentication, role-based access control, audit logging, and caching — all out of the box.
 
-Developed this project with ASP.NET Core and React, utilizing AI tools such as ChatGPT and Claude AI to accelerate development, troubleshoot issues, and explore architectural solutions while maintaining ownership of implementation and technical decisions.
+Developed this project with ASP.NET Core and React, utilizing AI tools such as ChatGPT and Claude AI to accelerate development, troubleshoot issues, and explore architerctural solutions while maintaining ownership of implementation and technical decisions.
+
 ---
 
 ## Tech Stack
