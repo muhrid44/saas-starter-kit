@@ -151,7 +151,7 @@ saas-frontend/               # React + Vite frontend
 
 ## Creating Your First Workspace
 
-1. Go to `http://localhost:5173/signup`
+1. Go to [Demo](https://saasstarterkitwa1.azurewebsites.net/signup)
 2. Fill in your company name, workspace slug, and admin credentials
 3. You're in — register users from the Users page
 
