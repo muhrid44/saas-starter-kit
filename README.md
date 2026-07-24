@@ -46,10 +46,6 @@ Developed this project with ASP.NET Core and React, utilizing AI tools such as C
 
 ---
 
-## 🚀 Demo
-
-A live demo of **SaaS Starter Kit** is available for anyone who wants to explore the application.
-
 ### What you can do
 
 - ✅ Register a new account
@@ -61,13 +57,6 @@ A live demo of **SaaS Starter Kit** is available for anyone who wants to explore
 ### Multi-Tenant Isolation
 
 This application implements **tenant isolation**, meaning that each registered account belongs to its own tenant. You can only access and manage data within your own tenant, ensuring that your actions will not affect other users.
-
-Feel free to create an account and experiment with the application.
-
-> **Note**
-> This is a public demo environment intended for portfolio purposes. Data may be modified or reset without prior notice.
-
-**Live Demo:** [Demo](https://saasstarterkitwa1.azurewebsites.net) hopefully it's still live XD
 
 ## Getting Started
 
